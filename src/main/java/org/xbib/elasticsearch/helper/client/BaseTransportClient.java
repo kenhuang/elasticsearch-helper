@@ -15,6 +15,12 @@
  */
 package org.xbib.elasticsearch.helper.client;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.elasticsearch.action.admin.cluster.state.ClusterStateAction;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateRequestBuilder;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
@@ -29,11 +35,7 @@ import org.xbib.elasticsearch.common.GcMonitor;
 import org.xbib.elasticsearch.helper.network.NetworkUtils;
 import org.xbib.elasticsearch.plugin.helper.HelperPlugin;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import com.floragunn.searchguard.ssl.SearchGuardSSLPlugin;
 
 abstract class BaseTransportClient extends BaseClient {
 
@@ -65,10 +67,19 @@ abstract class BaseTransportClient extends BaseClient {
                     + " " + System.getProperty("java.vm.vendor")
                     + " " + System.getProperty("java.runtime.version")
                     + " " + System.getProperty("java.vm.version");
-            logger.info("creating transport client on {} with effective settings {}",
+            logger.info("BaseTransportClient creating transport client on {} with effective settings {}",
                     version, settings.getAsMap());
-            this.client = TransportClient.builder()
-                    .addPlugin(HelperPlugin.class)
+            TransportClient.Builder builder = TransportClient.builder()
+                    .addPlugin(HelperPlugin.class);
+
+            // optional search guard support
+            logger.info("before adding SearchGuardSSLPlugin BaseTransportClient");
+            if (settings.get("searchguard.ssl.transport.enabled") != null) {
+                logger.info("adding SearchGuardSSLPlugin");
+                builder.addPlugin(SearchGuardSSLPlugin.class);
+            }
+
+            this.client = builder
                     .settings(settings)
                     .build();
             this.gcmon = new GcMonitor(settings);

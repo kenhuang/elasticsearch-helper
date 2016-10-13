@@ -113,6 +113,16 @@ public final class ClientBuilder implements ClientParameters {
                 .init(settings, metric);
     }
 
+    public BulkTransportSearchGuardClient toBulkTransportSearchGuardClient() {
+        Settings settings = settingsBuilder.build();
+        return (BulkTransportSearchGuardClient) new BulkTransportSearchGuardClient()
+                .maxActionsPerRequest(settings.getAsInt(MAX_ACTIONS_PER_REQUEST, DEFAULT_MAX_ACTIONS_PER_REQUEST))
+                .maxConcurrentRequests(settings.getAsInt(MAX_CONCURRENT_REQUESTS, DEFAULT_MAX_CONCURRENT_REQUESTS))
+                .maxVolumePerRequest(settings.getAsBytesSize(MAX_VOLUME_PER_REQUEST, DEFAULT_MAX_VOLUME_PER_REQUEST))
+                .flushIngestInterval(settings.getAsTime(FLUSH_INTERVAL, DEFAULT_FLUSH_INTERVAL))
+                .init(settings, metric);
+    }
+
     public IngestTransportClient toIngestTransportClient() {
         Settings settings = settingsBuilder.build();
         return new IngestTransportClient()

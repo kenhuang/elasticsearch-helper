@@ -15,6 +15,7 @@
  */
 package org.xbib.elasticsearch.helper.client;
 
+import com.floragunn.searchguard.ssl.SearchGuardSSLPlugin;
 import com.google.common.collect.ImmutableSet;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.Version;
@@ -215,9 +216,18 @@ public class BulkNodeClient extends BaseClient implements ClientAPI {
                     .put("node.client", true)
                     .put("node.master", false)
                     .put("node.data", false).build();
-            logger.info("creating node client on {} with effective settings {}",
+            logger.info("BulkNodeClient creating node client on {} with effective settings {}",
                     version, effectiveSettings.getAsMap());
+            logger.info("before adding SearchGuardSSLPlugin BulkNodeClient");
             Collection<Class<? extends Plugin>> plugins = Collections.<Class<? extends Plugin>>singletonList(HelperPlugin.class);
+
+            // optional search guard support
+            logger.info("before adding SearchGuardSSLPlugin BulkNodeClient");
+            if (settings.get("searchguard.ssl.transport.enabled") != null) {
+                logger.info("adding SearchGuardSSLPlugin");
+                plugins.add(SearchGuardSSLPlugin.class);
+            }
+
             Node node = new BulkNode(new Environment(effectiveSettings), plugins);
             node.start();
             this.client = node.client();
