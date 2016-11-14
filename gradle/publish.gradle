@@ -3,12 +3,18 @@ task xbibUpload(type: Upload) {
     configuration = configurations.archives
     uploadDescriptor = true
     repositories {
-        if (project.hasProperty("xbibUsername")) {
-            mavenDeployer {
-                configuration = configurations.wagon
-                repository(url: 'scpexe://xbib.org/repository') {
-                    authentication(userName: xbibUsername, privateKey: xbibPrivateKey)
-                }
+//        if (project.hasProperty("xbibUsername")) {
+//            mavenDeployer {
+//                configuration = configurations.wagon
+//                repository(url: 'scpexe://xbib.org/repository') {
+//                    authentication(userName: xbibUsername, privateKey: xbibPrivateKey)
+//                }
+//            }
+//        }
+        mavenDeployer {
+            configuration = configurations.wagon
+            repository(url: 'http://NEXUS_REPO/nexus/content/repositories/thirdparty/') {
+                authentication(userName: 'admin', password: 'admin123')
             }
         }
     }
